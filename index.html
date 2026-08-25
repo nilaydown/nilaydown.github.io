@@ -23,16 +23,18 @@ hr{border:0;border-top:1px solid #ddd;margin:34px 0}
 ol{padding-left:22px;margin:0 0 14px}
 ol li{margin-bottom:14px}
 ul.writings{list-style:none;padding:0;margin:0}
-ul.writings li{margin-bottom:12px}
-ul.writings ul{list-style:none;padding-left:18px;margin:6px 0 0}
-ul.writings ul a{font-size:17px}
-ul.writings .blurb{color:#666;font-size:15px;margin-left:18px}
+ul.writings li{display:grid;grid-template-columns:250px 1fr;column-gap:24px;align-items:baseline;margin-bottom:12px}
+ul.writings ul{list-style:none;grid-column:1/-1;padding:0;margin:8px 0 0}
+ul.writings ul li a{padding-left:18px;font-size:17px}
+ul.writings .blurb{color:#666;font-size:15px}
 ul.writings .soon{color:#666}
 ul.writings .soon::after{content:" (on notion)";font-size:14px;color:#999}
 details{margin:0 0 14px;border-bottom:1px solid #eee;padding-bottom:12px}
 summary{cursor:pointer;font-size:17px}
 details p{margin:12px 0 0;font-size:16.5px;color:#333}
-@media(max-width:640px){body{font-size:17px}.wrap{padding:36px 18px 60px}h1{font-size:27px}}
+@media(max-width:640px){body{font-size:17px}.wrap{padding:36px 18px 60px}h1{font-size:27px}
+ul.writings li{grid-template-columns:1fr;row-gap:2px}
+ul.writings ul li .blurb{padding-left:18px}}
 </style>
 </head>
 <body>
