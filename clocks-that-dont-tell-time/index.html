@@ -69,7 +69,7 @@ footer{margin-top:56px;padding-top:16px;border-top:1px solid #ddd;font-size:14px
 <p>The second is whether we can place all events into a single agreed order, so that every node sorts the same set of events the same way and no two nodes disagree about the sequence. This is what is called a <em>total order</em>: an ordering in which every pair of events is comparable, so any two events can be lined up as one before the other with no ties and no gaps. That is the sense in which the phrase is used through the rest of this post.</p>
 <p>Actually, before we look at any actual designs, we should break the problem down a little further. I said above that there were two things we wanted from time in a distributed system, but in practice the first of those splits into two separate questions. Keeping them apart will make it easier to follow the rest of the post.</p>
 <p>The first question is whether we can rule influence out. Given two events A and B, can we say with certainty that B did not cause A? This is the weakest of the three, and it will turn out to be the cheapest to answer.</p>
-<p>The second is whether we can confirm influence. Can we say with certainty that A did cause B? This is a strictly harder question than the first, and answering it is also what lets us recognise the opposite case, where neither event influenced the other and the two are simply concurrent.</p>
+<p>The second is whether we can confirm causality. Can we say with certainty that A did cause B? This is a strictly harder question than the first, and answering it is also what lets us recognise the opposite case, where neither event influenced the other and the two are simply concurrent.</p>
 <p>The third is whether we can produce a total order. Can every node in the system sort the same set of events into the same sequence, with no ties left unresolved?</p>
 <figure><img src="figures/three-questions.svg" alt="" width="796" height="234" loading="lazy"></figure>
 <p>It is worth keeping these three apart, because no design gives you all of them. Each clock answers some of the questions and not others, and the usual price for each answer is space in the timestamp. This checklist is the scorecard we will carry through the post, filling it in one design at a time.</p>
@@ -91,7 +91,7 @@ footer{margin-top:56px;padding-top:16px;border-top:1px solid #ddd;font-size:14px
 <p>So a tie is a small island of certainty in a design that is otherwise silent about causality. It is somewhat frustrating that this was the case we least needed answered. What we needed was an answer to whether one event influenced the other, and this design is unable to answer that question.</p>
 <h2>The Lamport Origin clock</h2>
 <figure><img src="figures/checklist-origin.svg" alt="" width="796" height="92" loading="lazy"></figure>
-<p>If you look carefully at what we just did, we only answered one of our three questions. We can now rule influence out, which was the first and weakest of them. We still have no way to confirm influence, and we still have no agreed ordering of events. Two of the three are untouched.</p>
+<p>If you look carefully at what we just did, we only answered one of our three questions. We can now rule influence out, which was the first and weakest of them. We still have no way to confirm causality, and we still have no agreed ordering of events. Two of the three are untouched.</p>
 <p>Of the two that remain, the ordering question is by far the easier one, so we will take that first. And the fix really is a hack rather than an insight. The problem with a bare Lamport timestamp is that two nodes can independently arrive at the same number, and when they do, nothing in the timestamp says which of them to put first. So we give the timestamp a second field: the id of the node that produced it. A timestamp stops being 4 and becomes [a, 4]. To order any two events you compare their counters, and if the counters happen to be equal you compare their node ids instead. Ties can no longer happen, because no two events on the same node ever share a counter.</p>
 <p>Take the same run as before. Twelve events across three nodes, now stamped with their node id, sorted by counter first and node id second.</p>
 <figure><img src="figures/origin-total-order.gif" alt="" width="1580" height="644" loading="lazy"></figure>
@@ -156,7 +156,7 @@ footer{margin-top:56px;padding-top:16px;border-top:1px solid #ddd;font-size:14px
 <h2>What each design buys</h2>
 <p>One problem, three questions, and six designs that answer different subsets of them at different prices.</p>
 <div class="tablewrap"><table>
-<thead><tr><th>Design</th><th>Rule influence out</th><th>Confirm influence</th><th>Agreed order</th><th>Order in real time</th><th>Size / compare</th></tr></thead>
+<thead><tr><th>Design</th><th>Rule influence out</th><th>Confirm causality</th><th>Agreed order</th><th>Order in real time</th><th>Size / compare</th></tr></thead>
 <tbody>
 <tr><td>Lamport clock</td><td>yes</td><td>no</td><td>no</td><td>no</td><td>O(1) / O(1)</td></tr>
 <tr><td>Lamport Origin clock</td><td>yes</td><td>no</td><td>yes</td><td>no</td><td>O(1) / O(1)</td></tr>
